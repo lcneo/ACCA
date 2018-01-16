@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import pandas as pd
+#import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 import os
-from tt import Extension
+import tt
 #主窗体类
 class MainWin(QMainWindow):
     def __init__(self):
@@ -111,10 +111,9 @@ class CentralWidget(QWidget):
         super().__init__()
         #中心区域分为左，右，下三个区域
         self.topleft, self.topright, self.bottom = QFrame(self), QFrame(self), QFrame(self)
-        self.QQ = QWidget()
-
-
-        self.QQ.textEdit = QTextEdit()
+        #self.QQ = QWidget()
+        #self.QQ.textEdit = QTextEdit()
+        self.table = QTableWidget(25,15)
         #
         self.initUI()
     def initUI(self):
@@ -157,7 +156,7 @@ class CentralWidget(QWidget):
         self.setLayout(hbox)
 
         hbbox = QHBoxLayout()
-        hbbox.addWidget(self.QQ.textEdit)
+        hbbox.addWidget(self.table)
         self.topleft.setLayout(hbbox)
 
 
@@ -176,6 +175,33 @@ class CentralWidget(QWidget):
 
         self.topright.setLayout(vbox)
 
+
+    def CreatTable(self):
+
+        data, head, index = tt.readcav(r"C:\Users\neo\Desktop\end.csv")
+
+        #row 为行数， col 为列数
+        row = len(data)
+        col = len(data.columns)
+
+        #创建一个表格类
+        table = QTableWidget()
+
+        #设置表格的长和宽
+        table.setRowCount(row)
+        table.setColumnCount(col)
+
+        # 每一列的标题
+        table.setHorizontalHeaderLabels(head)
+        # 每一行的标题
+        table.setVerticalHeaderLabels(index)
+
+
+        #将DataFrame中的元素打印到表格中去，i为行，j为列
+        for i in range(row):
+            for j in range(col):
+                table.setItem(i,j, QTableWidgetItem(str(data.ix[i][j])))
+        self.table = table
 
     #设置字体
     def SetFont(self):

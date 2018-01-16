@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import pandas as pd
+#import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 import os
-
+import tt
 #主窗体类
 class MainWin(QMainWindow):
     def __init__(self):
@@ -18,7 +18,7 @@ class MainWin(QMainWindow):
         #self.move(50,50)
         self.Center()
 
-        self.setWindowIcon(QIcon(r"C:\icons\Launchpad.icns"))
+        self.setWindowIcon(QIcon("image/Launchpad.icns"))
 
         self.CreateBar()#添加菜单栏
 
@@ -40,12 +40,12 @@ class MainWin(QMainWindow):
         fileMenu = menubar.addMenu('文件')
 
         #退出
-        exitAction = QAction(QIcon(r"C:\icons\Button-Turn-Off-01.png"),'退出程序',self)
+        exitAction = QAction(QIcon("image/Button-Turn-Off-01.png"),'退出程序',self)
         exitAction.triggered.connect(self.close)
         exitAction.setShortcut("Ctrl+q")
 
         #读取文件
-        OpenFileAction = QAction(QIcon(r"C:\icons\Document-New-01.png"),'打开文件',self)
+        OpenFileAction = QAction(QIcon("image/Document-New-01.png"),'打开文件',self)
         OpenFileAction.setShortcut('Ctrl+o')
         OpenFileAction.triggered.connect(self.Cwidget.OpenFile)
 
@@ -56,7 +56,7 @@ class MainWin(QMainWindow):
         # 设置菜单
         setMenu = menubar.addMenu('设置')
 
-        fontAction = QAction(QIcon(r"C:\icons\Gear-01.png"),'字体',self)
+        fontAction = QAction(QIcon("image/Gear-01.png"),'字体',self)
         fontAction.setShortcut('Ctrl+f')
         fontAction.triggered.connect(QFontDialog.getFont)
 
@@ -75,11 +75,11 @@ class MainWin(QMainWindow):
     #添加工具栏
     def CreateTools(self):
         #读取文件功能
-        OpenFileAction = QAction(QIcon(r"C:\icons\Document-New-01.png"),'打开文件',self)
+        OpenFileAction = QAction(QIcon("image/Document-New-01.png"),'打开文件',self)
         OpenFileAction.triggered.connect(self.Cwidget.OpenFile)
 
         #退出功能
-        exitAcion = QAction(QIcon(r"C:\icons\Button-Turn-Off-01.png"),'退出',self)
+        exitAcion = QAction(QIcon("image/Button-Turn-Off-01.png"),'退出',self)
         exitAcion.triggered.connect(self.close)
 
         #建立工具栏
@@ -109,9 +109,12 @@ class MainWin(QMainWindow):
 class CentralWidget(QWidget):
     def __init__(self):
         super().__init__()
+        #中心区域分为左，右，下三个区域
         self.topleft, self.topright, self.bottom = QFrame(self), QFrame(self), QFrame(self)
-        self.QQ = QWidget()
-        self.QQ.textEdit = QTextEdit()
+        #self.QQ = QWidget()
+        #self.QQ.textEdit = QTextEdit()
+        self.table = QTableWidget(25,15)
+        #
         self.initUI()
     def initUI(self):
 
@@ -153,7 +156,7 @@ class CentralWidget(QWidget):
         self.setLayout(hbox)
 
         hbbox = QHBoxLayout()
-        hbbox.addWidget(self.QQ.textEdit)
+        hbbox.addWidget(self.table)
         self.topleft.setLayout(hbbox)
 
 
@@ -161,7 +164,7 @@ class CentralWidget(QWidget):
     def CreateFontButton(self):
 
         vbox = QVBoxLayout()
-        btn = QPushButton(QIcon(r"C:\icons\Gear-01.png"),'字体设置', self.topright)
+        btn = QPushButton(QIcon("image/Gear-01.png"),'字体设置', self.topright)
         btn.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed)
         btn.clicked.connect(self.SetFont)
         btn.move(20,20)
@@ -172,6 +175,33 @@ class CentralWidget(QWidget):
 
         self.topright.setLayout(vbox)
 
+
+    def CreatTable(self):
+
+        data, head, index = tt.readcav(r"C:\Users\neo\Desktop\end.csv")
+
+        #row 为行数， col 为列数
+        row = len(data)
+        col = len(data.columns)
+
+        #创建一个表格类
+        table = QTableWidget()
+
+        #设置表格的长和宽
+        table.setRowCount(row)
+        table.setColumnCount(col)
+
+        # 每一列的标题
+        table.setHorizontalHeaderLabels(head)
+        # 每一行的标题
+        table.setVerticalHeaderLabels(index)
+
+
+        #将DataFrame中的元素打印到表格中去，i为行，j为列
+        for i in range(row):
+            for j in range(col):
+                table.setItem(i,j, QTableWidgetItem(str(data.ix[i][j])))
+        self.table = table
 
     #设置字体
     def SetFont(self):
@@ -189,12 +219,21 @@ class CentralWidget(QWidget):
     def OpenFile(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file','/home')
         if fname[0]:
-            f = open(fname[0],'r')
-            print(fname)
-            with f:
-                data = f.read()
+            try:
+                # f = open(fname[0], 'r')
+                # print(fname)
+                # data = f.read()
+                # f.close()
+                f = pd.read_csv(fname[0])
+                data = "aaa"
+                Extension()
+            except:
+                print("文件读取失败")
+            else:
                 self.QQ.textEdit.setText(data)
                 self.topright.lbl.setText(os.path.basename(fname[0]))
+            finally:
+                print('hello error')
 #运行main函数
 if __name__ == "__main__":
 
