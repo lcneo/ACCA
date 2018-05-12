@@ -15,6 +15,13 @@ def Extension():
     for x,y in zip(range(2),f.是否延期.value_counts()):
         plt.text(x,y+10,str('%.2f%%' % (( y/length) * 100)),ha='center')
     plt.show()
+
+def readcav(path):
+    data = pd.read_csv(path)
+    head = list(pd.Series(list(data.head())).astype('str'))
+    index = list(pd.Series(list(range(len(data)))).astype('str'))
+    return data, head, index
+
 if __name__ == '__main__':
     Extension()
 
